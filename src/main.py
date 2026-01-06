@@ -22,6 +22,12 @@ with open(DATA_DIR / 'USER_AGENTS.json', 'r', encoding='UTF-8') as file:
     USER_AGENTS = json.load(file)
 with open(DATA_DIR / 'CITY_CODE.json', 'r', encoding='UTF-8') as file:
     CITY_CODE = json.load(file)
+with open(DATA_DIR / 'region_subregions.json', 'r', encoding='UTF-8') as file:
+    REGION_CONFIG = json.load(file)
+
+# 从配置文件读取区域设置（可选使用）
+SZ_DOMAIN_ROOT = REGION_CONFIG.get('domain_root', '')
+REGION_SUBREGIONS: dict[str, list[str]] = REGION_CONFIG.get('regions', {})
 INFORMATION_PATH = RESULT_DIR / 'information'
 
 PROFILE_USER_AGENT = get_default_user_agent()

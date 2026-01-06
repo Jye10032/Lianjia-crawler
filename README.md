@@ -6,7 +6,8 @@
 
 **新增功能：**
 - **并行爬虫**: 提供多线程并行爬取版本，相比串行版本性能提升 2-3 倍
-- **区域层级爬取**: 支持按区域-子区域层级结构精细化爬取（适用于深圳、惠州等城市）
+- **自动区域获取**: 输入城市名称后自动爬取该城市的区域和子区域信息
+- **区域配置外置**: 区域配置保存到 JSON 文件，无需修改代码即可切换城市
 - **性能监控**: 自动记录爬取指标（响应时间、状态码、字节数等）到 metrics.csv
 - **工具脚本**: 提供 CSV 转 JSON、区域信息获取、性能测试等实用工具
 
@@ -69,37 +70,39 @@ CSV_HEADER_CN = ['标题', '地址', '户型', '面积', '朝向', '装修情况
 
 #### 方式 B: 并行爬取（推荐，性能提升 2-3 倍）
 
-1. 编辑 `src/parallel_main.py` 中的区域配置：
-
-   ```python
-   # 示例：惠州博罗区配置
-   SZ_DOMAIN_ROOT = 'https://hui.lianjia.com/ershoufang/'
-
-   REGION_SUBREGIONS: dict[str, list[str]] = {
-       'boluo': [  # 博罗
-           'boluolongxi', 'boluoshiwan', 'boluoyuanzhou',
-           'luofushan', 'xiaojinkou'
-       ]
-   }
-   ```
-
-   可用城市代码示例：
-   - `sz.lianjia.com` - 深圳
-   - `hui.lianjia.com` - 惠州
-   - `dg.lianjia.com` - 东莞
-   - `gz.lianjia.com` - 广州
-
-2. 运行 `src/parallel_main.py`
+1. 运行 `src/parallel_main.py`
    ```bash
    python src/parallel_main.py
    ```
 
+2. 输入城市名称（中文），程序会自动爬取该城市的区域和子区域信息
+   ```
+   请输入城市名称: 深圳
+   正在获取 深圳(sz) 的区域信息...
+     获取 futianqu 的子区域...
+     获取 nanshanqu 的子区域...
+     ...
+   已保存到 data/region_subregions.json
+   共 10 个区域
+   ```
+
 3. 输入需爬取的页数范围（例如 `1-8`）
 
-4. 数据将自动保存到 `result/guangzhou/` 文件夹（或配置的目录），包括：
+4. 数据将自动保存到 `result/{城市名}/` 文件夹，包括：
    - `{区域}_{子区域}.csv` - 房源列表数据
    - `{区域}_{子区域}.json` - JSON 格式数据
    - `metrics.csv` - 爬取性能指标（响应时间、状态码、字节数等）
+
+**区域配置文件** (`data/region_subregions.json`)：
+```json
+{
+  "domain_root": "https://sz.lianjia.com/ershoufang/",
+  "regions": {
+    "futianqu": ["bagualing", "baihua", "chegongmiao", ...],
+    "nanshanqu": ["baishizhou", "daxuecheng", "hongshuwan", ...]
+  }
+}
+```
 
 **并行爬虫特性：**
 - 4 个工作线程并发爬取
@@ -148,9 +151,22 @@ python src/csv_to_json.py
 - 批量转换为 JSON 格式
 - 保持与原始爬虫输出相同的数据结构
 
-### 2. 获取区域信息
+### 2. 获取区域信息 (get_regions.py)
 
-#### 2.1 层级结构获取 (get_region_info_hierarchical.py)
+自动爬取指定城市的区域和子区域信息，保存到配置文件。
+
+```bash
+python src/get_regions.py
+```
+
+**功能：**
+- 输入城市中文名称，自动获取城市代码
+- 爬取该城市所有区域和子区域
+- 保存到 `data/region_subregions.json`
+
+**注意：** `parallel_main.py` 已集成此功能，通常无需单独运行。
+
+### 3. 层级结构获取 (get_region_info_hierarchical.py)
 
 获取城市的区域-子区域层级结构，适用于深圳、惠州等有明确区域划分的城市。
 
@@ -158,19 +174,7 @@ python src/csv_to_json.py
 python src/get_region_info_hierarchical.py
 ```
 
-**输出格式：**
-```python
-REGION_SUBREGIONS: dict[str, list[str]] = {
-    'huicheng': [  # 惠城
-        'chenjiang', 'dongjiangxincheng', 'dongping2', ...
-    ],
-    'boluo': [  # 博罗
-        'boluolongxi', 'boluoshiwan', 'boluoyuanzhou', ...
-    ]
-}
-```
-
-#### 2.2 简单列表获取 (get_region_info_simple.py)
+### 4. 简单列表获取 (get_region_info_simple.py)
 
 获取城市的所有区域（平铺结构），适用于东莞等以镇为主的行政区划。
 
@@ -178,14 +182,7 @@ REGION_SUBREGIONS: dict[str, list[str]] = {
 python src/get_region_info_simple.py
 ```
 
-**输出格式：**
-```python
-'dg': [  # 东莞
-    'nancheng', 'dongcheng', 'guancheng', 'wanjiang', ...
-]
-```
-
-### 3. 性能测试 (performance_test.py)
+### 5. 性能测试 (performance_test.py)
 
 对比串行爬虫和并行爬虫的实际性能。
 
@@ -263,6 +260,7 @@ Lianjia-crawler/
 ├── src/                          # 源代码目录
 │   ├── main.py                   # 串行爬虫主程序
 │   ├── parallel_main.py          # 并行爬虫主程序（推荐）
+│   ├── get_regions.py            # 自动获取城市区域信息
 │   ├── detail_scraper.py         # 房屋详情爬取
 │   ├── session_config.py         # 登录凭证配置
 │   ├── csv_to_json.py           # CSV转JSON工具
@@ -271,13 +269,12 @@ Lianjia-crawler/
 │   └── performance_test.py       # 性能测试工具
 ├── data/                         # 数据配置
 │   ├── CITY_CODE.json           # 城市代码映射
-│   └── USER_AGENTS.json         # User-Agent 列表
+│   ├── USER_AGENTS.json         # User-Agent 列表
+│   └── region_subregions.json   # 区域配置（自动生成）
 ├── result/                       # 爬取结果
+│   ├── {城市名}/                # 并行爬虫输出目录
 │   ├── information/             # 串行爬虫输出
-│   ├── guangzhou/               # 并行爬虫输出（可配置）
 │   └── example/                 # 示例数据
-│       ├── information2/        # 深圳罗湖区示例
-│       └── information3/        # 深圳多区域示例
 └── requirements.txt             # 依赖列表
 ```
 
@@ -292,7 +289,7 @@ Lianjia-crawler/
 | 重试机制 | 基础重试 | 指数退避 + 抖动 |
 | 性能监控 | ✗ | ✓ (metrics.csv) |
 | 适用场景 | 小规模爬取 | 大规模批量爬取 |
-| 区域配置 | 城市级别 | 区域-子区域层级 |
+| 区域配置 | 城市级别 | 自动获取区域-子区域 |
 
 ### 性能说明
 

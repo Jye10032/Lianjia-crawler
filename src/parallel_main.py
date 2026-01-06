@@ -13,6 +13,7 @@ from lxml import etree
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from session_config import get_default_cookie_dict, get_default_user_agent
+from get_regions import fetch_and_save
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR.parent / 'data'
@@ -23,8 +24,10 @@ with open(DATA_DIR / 'USER_AGENTS.json', 'r', encoding='utf-8') as f:
 with open(DATA_DIR / 'CITY_CODE.json', 'r', encoding='utf-8') as f:
     CITY_CODE = json.load(f)
 
-INFORMATION_PATH = RESULT_DIR / 'guangzhou'
-INFORMATION_PATH.mkdir(parents=True, exist_ok=True)
+# 全局变量，在 main 中动态设置
+SZ_DOMAIN_ROOT = ''
+REGION_SUBREGIONS: dict[str, list[str]] = {}
+INFORMATION_PATH = RESULT_DIR
 
 PROFILE_USER_AGENT = get_default_user_agent()
 
@@ -36,84 +39,6 @@ CSV_COLUMNS = ['title', 'location', 'configuration', 'area', 'towards', 'decorat
                'follow_count', 'visit_count', 'publish_time', 'tags', 'link']
 CSV_HEADER_CN = ['标题', '地址', '户型', '面积', '朝向', '装修情况', '层数', '建造时间', '楼型',
                  '总价', '每平米单价', '关注人数', '带看次数', '发布时间', '标签', '详情链接']
-
-# # SZ_DOMAIN_ROOT = 'https://sz.lianjia.com/ershoufang'
-# SZ_DOMAIN_ROOT = 'https://gz.lianjia.com/ershoufang'
-
-# REGION_SUBREGIONS: dict[str, list[str]] = {
-#     'tianhe': ['cencun','changxing1','chebei','dashadi','dongfengdong','dongfengxi',
-#                 'donglang','fangcun','fenshui','guanggangxincheng','hedong1',
-#                 'hepingxi','huadiwan','huangsha','jiaokou1','jushu','kengkou',
-#                'longxi1','liuhuazhanqian','longjin','nananlu','renminbei1','renminlu',
-#                'sanyuanli','shahe1','shataibei','shatainan','shipai1','shuiyin',
-#                'tangxia1','tianhegongyuan','tianhekeyunzhan','tianhenan','tianrunlu',
-#                'tiyuzhongxin','wushan','wuyangxincheng','xiaobei','xihualu','xilang','ximenkou','yangji','yuexiunan']
-#     # 'luohuqu': [
-#     'baishida', 'buxin', 'chunfenglu', 'cuizhu', 'diwang', 'dongmen',
-#     'honghu', 'huangbeiling', 'huangmugang', 'liantang', 'luohukouan',
-#     'luoling', 'qingshuihe', 'sungang', 'wanxiangcheng', 'xinxiu', 'yinhu'
-# ],
-# 'futianqu': ['bagualing','baihua','chegongmiao','chiwei','futianbaoshuiqu',
-#              'futianzhongxin','huanggan','huangmugang','huaqiangbei','huaqiangnan',
-#              'jingtian','lianhua','meilin','shangbu','shangxiasha','shawei',
-#              'shixia','xiangmeibei','xiangmihus','xinzhu','yinhu','yuanling','zhuzilin'],
-# 'nanshanqu': ['baishizhou','daxuecheng','hongshuwan','houhai','huaqiaocheng',
-#               'kechiyuan','nanshanzhongxin','nantou','qianhai','shekou',
-#               'shenzhenwan','xili'],
-# 'yantianqu': ['meisha','shatoujiao','yantiangang'],
-# 'baoanqu':   ['baoanzhongxin','bihai','fanshen','fuyong','hangcheng','shajing',
-#               'shiyan','songgang','taoyuanju','xicheng','xinan','xixiang'],
-# 'longgangqu':['bantian','buji','bufendanfen','bujiguan','bujijie','bujinanling',
-#               'bujishiyaling','bujishuijing','danzhutou','dayunxincheng',
-#               'henggang','longgangbaohe','longgangshuanglong','longgangzhongxincheng',
-#               'minzhi','pingdi','pinghu'],
-# 'longhuaqu': ['bantian','guanlan','hongshan','longhuaxinqu','longhuazhongxin',
-#               'meilinguan','minzhi','shangtang','shiyan'],
-# 'guangmingqu': ['gongming','guangming'],
-# 'pingshanqu':  ['pingshan'],
-# 'dapengxinqu': ['dapengbandao']
-# }
-
-SZ_DOMAIN_ROOT = 'https://hui.lianjia.com/ershoufang/'
-
-REGION_SUBREGIONS: dict[str, list[str]] = {
-    'boluo': [  # 博罗
-        'boluolongxi', 'boluoshiwan', 'boluoyuanzhou',
-        'luofushan', 'xiaojinkou'
-    ]
-}
-
-#   惠州区域配置 (6个区)
-
-# SZ_DOMAIN_ROOT = 'https://hui.lianjia.com/ershoufang/'
-
-# REGION_SUBREGIONS: dict[str, list[str]] = {
-#     'huicheng': [  # 惠城
-#         'chenjiang', 'dongjiangxincheng', 'dongping2', 'henanan',
-#         'huihuan', 'jiangbei2', 'longfeng', 'maan',
-#         'maidi', 'nantan', 'ruhu', 'shuikou',
-#         'xiajiao', 'xiaojinkou', 'xiapu1'
-#     ],
-#     'zhongkai': [  # 仲恺
-#         'chenjiang', 'huihuan', 'tongqiaolilin'
-#     ],
-#     'huiyang': [  # 惠阳
-#         'baiyunxincheng', 'kaichengdarunfa', 'nanzhanxincheng',
-#         'qiuchang', 'quzhengfu1', 'xinxu'
-#     ],
-#     'dayawan': [  # 大亚湾
-#         'aotou', 'biyadishangquan', 'kaichengdarunfa', 'longguangcheng',
-#         'wanda15', 'wuyueguangchang1', 'xiayong', 'xiquxinliao'
-#     ],
-#     'huidong': [  # 惠东
-#         'huidongxiancheng', 'huidongyanhai', 'shiliyintan'
-#     ],
-#     'boluo': [  # 博罗
-#         'boluolongxi', 'boluoshiwan', 'boluoyuanzhou',
-#         'luofushan', 'xiaojinkou'
-#     ]
-# }
-
 
 BASE_HEADERS_TEMPLATE = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -441,6 +366,26 @@ def write_json_dataset(out_dir: Path, region_key: str, subregion: str, infos: Li
 
 
 def main():
+    global SZ_DOMAIN_ROOT, REGION_SUBREGIONS, INFORMATION_PATH
+
+    # 1. 选择城市
+    city_chinese = input('请输入城市名称: ')
+    if city_chinese not in CITY_CODE:
+        print('链家暂未提供该城市相关信息')
+        return
+
+    # 2. 爬取区域和子区域
+    config = fetch_and_save(city_chinese)
+    if not config:
+        print('获取区域信息失败')
+        return
+
+    SZ_DOMAIN_ROOT = config['domain_root']
+    REGION_SUBREGIONS = config['regions']
+    INFORMATION_PATH = RESULT_DIR / city_chinese
+    INFORMATION_PATH.mkdir(parents=True, exist_ok=True)
+
+    # 3. 输入页数范围
     range_input = input('请输入页数范围 (例如 1-8): ')
     m = re.search(r'^\D*(\d+)\D+(\d+)\D*$', range_input)
     if not m:

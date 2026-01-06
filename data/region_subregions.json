@@ -1,0 +1,90 @@
+{
+  "_comment": "区域和子区域配置文件，domain_root 为链家二手房根URL",
+  "domain_root": "https://hui.lianjia.com/ershoufang/",
+  "regions": {
+    "boluo": [
+      "boluolongxi", "boluoshiwan", "boluoyuanzhou",
+      "luofushan", "xiaojinkou"
+    ]
+  },
+  "_examples": {
+    "guangzhou": {
+      "domain_root": "https://gz.lianjia.com/ershoufang",
+      "regions": {
+        "tianhe": [
+          "cencun", "changxing1", "chebei", "dashadi", "dongfengdong", "dongfengxi",
+          "donglang", "fangcun", "fenshui", "guanggangxincheng", "hedong1",
+          "hepingxi", "huadiwan", "huangsha", "jiaokou1", "jushu", "kengkou",
+          "longxi1", "liuhuazhanqian", "longjin", "nananlu", "renminbei1", "renminlu",
+          "sanyuanli", "shahe1", "shataibei", "shatainan", "shipai1", "shuiyin",
+          "tangxia1", "tianhegongyuan", "tianhekeyunzhan", "tianhenan", "tianrunlu",
+          "tiyuzhongxin", "wushan", "wuyangxincheng", "xiaobei", "xihualu", "xilang", "ximenkou", "yangji", "yuexiunan"
+        ]
+      }
+    },
+    "shenzhen": {
+      "domain_root": "https://sz.lianjia.com/ershoufang",
+      "regions": {
+        "luohuqu": [
+          "baishida", "buxin", "chunfenglu", "cuizhu", "diwang", "dongmen",
+          "honghu", "huangbeiling", "huangmugang", "liantang", "luohukouan",
+          "luoling", "qingshuihe", "sungang", "wanxiangcheng", "xinxiu", "yinhu"
+        ],
+        "futianqu": [
+          "bagualing", "baihua", "chegongmiao", "chiwei", "futianbaoshuiqu",
+          "futianzhongxin", "huanggan", "huangmugang", "huaqiangbei", "huaqiangnan",
+          "jingtian", "lianhua", "meilin", "shangbu", "shangxiasha", "shawei",
+          "shixia", "xiangmeibei", "xiangmihus", "xinzhu", "yinhu", "yuanling", "zhuzilin"
+        ],
+        "nanshanqu": [
+          "baishizhou", "daxuecheng", "hongshuwan", "houhai", "huaqiaocheng",
+          "kechiyuan", "nanshanzhongxin", "nantou", "qianhai", "shekou",
+          "shenzhenwan", "xili"
+        ],
+        "yantianqu": ["meisha", "shatoujiao", "yantiangang"],
+        "baoanqu": [
+          "baoanzhongxin", "bihai", "fanshen", "fuyong", "hangcheng", "shajing",
+          "shiyan", "songgang", "taoyuanju", "xicheng", "xinan", "xixiang"
+        ],
+        "longgangqu": [
+          "bantian", "buji", "bufendanfen", "bujiguan", "bujijie", "bujinanling",
+          "bujishiyaling", "bujishuijing", "danzhutou", "dayunxincheng",
+          "henggang", "longgangbaohe", "longgangshuanglong", "longgangzhongxincheng",
+          "minzhi", "pingdi", "pinghu"
+        ],
+        "longhuaqu": [
+          "bantian", "guanlan", "hongshan", "longhuaxinqu", "longhuazhongxin",
+          "meilinguan", "minzhi", "shangtang", "shiyan"
+        ],
+        "guangmingqu": ["gongming", "guangming"],
+        "pingshanqu": ["pingshan"],
+        "dapengxinqu": ["dapengbandao"]
+      }
+    },
+    "huizhou": {
+      "domain_root": "https://hui.lianjia.com/ershoufang/",
+      "regions": {
+        "huicheng": [
+          "chenjiang", "dongjiangxincheng", "dongping2", "henanan",
+          "huihuan", "jiangbei2", "longfeng", "maan",
+          "maidi", "nantan", "ruhu", "shuikou",
+          "xiajiao", "xiaojinkou", "xiapu1"
+        ],
+        "zhongkai": ["chenjiang", "huihuan", "tongqiaolilin"],
+        "huiyang": [
+          "baiyunxincheng", "kaichengdarunfa", "nanzhanxincheng",
+          "qiuchang", "quzhengfu1", "xinxu"
+        ],
+        "dayawan": [
+          "aotou", "biyadishangquan", "kaichengdarunfa", "longguangcheng",
+          "wanda15", "wuyueguangchang1", "xiayong", "xiquxinliao"
+        ],
+        "huidong": ["huidongxiancheng", "huidongyanhai", "shiliyintan"],
+        "boluo": [
+          "boluolongxi", "boluoshiwan", "boluoyuanzhou",
+          "luofushan", "xiaojinkou"
+        ]
+      }
+    }
+  }
+}
